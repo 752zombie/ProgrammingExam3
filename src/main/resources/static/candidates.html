@@ -4,17 +4,26 @@
     <meta charset="UTF-8">
     <title>Oversigt over kandidater</title>
 </head>
-<body>
+<body onload="fetchParties()">
     <div id="add-new-candidate">
-        //Input fields for adding a new candidate
+        <!--Input fields for adding a new candidate-->
+
+        <label for="name-input-add">Navn: </label>
+        <input type="text" id="name-input-add">
+
+        <label for="votes-input-add">Antal stemmer: </label>
+        <input type="number" id="votes-input-add">
+
+        <label for="party-input-add">Parti: </label>
+        <select  id="party-input-add"></select>
+
+        <button onclick="postCandidate()">Opret</button>
     </div>
 
     <div id="candidates-container">
-        //Existing candidates including manipulation
+        <!--Existing candidates including manipulation-->
     </div>
 
-
-
-
+    <script src="js/candidates.js"></script>
 </body>
 </html>

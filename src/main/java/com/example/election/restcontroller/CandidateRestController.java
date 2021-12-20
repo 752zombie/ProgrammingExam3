@@ -44,6 +44,10 @@ public class CandidateRestController {
     @PostMapping(value = "/api/create-candidate", consumes = "application/json")
     public ResponseEntity<Candidate> createCandidate(@RequestBody Candidate candidate) {
         candidateRepository.save(candidate);
+        Integer politicalPartyId = candidate.getPoliticalParty().getPartyId();
+        PoliticalParty politicalParty = politicalPartyRepository.findById(politicalPartyId).get();
+        politicalParty.getCandidates().add(candidate);
+        politicalPartyRepository.save(politicalParty);
         return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
     }
 

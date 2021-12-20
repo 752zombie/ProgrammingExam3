@@ -1,5 +1,9 @@
 package com.example.election.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.Set;
 
@@ -11,6 +15,7 @@ public class PoliticalParty {
 
     private String name;
 
+    @JsonIgnore
     @OneToMany
     @JoinColumn(name = "party_id")
     private Set<Candidate> candidates;

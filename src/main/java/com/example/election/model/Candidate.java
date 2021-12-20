@@ -1,5 +1,8 @@
 package com.example.election.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 
 @Entity
@@ -47,5 +50,9 @@ public class Candidate {
 
     public void setNumberOfVotes(Integer numberOfVotes) {
         this.numberOfVotes = numberOfVotes;
+    }
+
+    public PoliticalParty getPoliticalParty() {
+        return politicalParty;
     }
 }
