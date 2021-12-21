@@ -41,6 +41,8 @@ public class CandidateRestController {
         return new ResponseEntity<>(politicalParty.getCandidates(), HttpStatus.OK);
     }
 
+
+
     @PostMapping(value = "/api/create-candidate", consumes = "application/json")
     public ResponseEntity<Candidate> createCandidate(@RequestBody Candidate candidate) {
         candidateRepository.save(candidate);
