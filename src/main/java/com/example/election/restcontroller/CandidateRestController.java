@@ -61,7 +61,9 @@ public class CandidateRestController {
 
     @DeleteMapping("/api/delete-candidate/{id}")
     public ResponseEntity<Candidate> deleteCandidate(@PathVariable("id") Integer id) {
-        candidateRepository.deleteById(id);
+        if (candidateRepository.existsById(id)) {
+            candidateRepository.deleteById(id);
+        }
         return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
     }
 

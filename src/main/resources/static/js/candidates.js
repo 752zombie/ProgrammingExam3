@@ -5,14 +5,14 @@ let candidateMap = new Map;
 
 function fetchParties() {
     const url = "http://localhost:8080/api/get-all-parties";
-    fetch(url).then(response => response.json()).then(data => {parties = data; createPartyMap(); createPartyDropdown(document.getElementById("party-input-add"))});
-    fetchCandidates();
+    fetch(url).then(response => response.json()).then(data => {parties = data; createPartyMap();
+    createPartyDropdown(document.getElementById("party-input-add")); fetchCandidates()});
 }
 
 function fetchCandidates() {
     const url = "http://localhost:8080/api/get-all-candidates";
 
-    fetch(url).then(response => response.json()).then(data => {candidates = data; createCandidateList(); createCandidateMap(); sortCandidatesBy("name"); createSortDropdown()});
+    fetch(url).then(response => response.json()).then(data => {candidates = data; createSortDropdown(); createCandidateList(); createCandidateMap(); sortCandidatesBy("name")});
 }
 
 function sortCandidatesBy(sortParam) {
@@ -34,8 +34,12 @@ function createCandidateMap() {
 }
 
 function createSortDropdown() {
+    const label = document.createElement("label");
+    label.setAttribute("for", "sort-dropdown");
+
     //create sort dropdown
     const sortDropdown = document.createElement("select");
+    sortDropdown.setAttribute("id", "sort-dropdown");
     const sortOption1 = document.createElement("option");
     sortOption1.value = "party";
     sortOption1.text = "Parti";
@@ -45,12 +49,17 @@ function createSortDropdown() {
     sortDropdown.appendChild(sortOption2);
     sortDropdown.appendChild(sortOption1);
     sortDropdown.setAttribute("onchange", "sortCandidatesBy(this.value)");
-
-    document.body.appendChild(sortDropdown);
+    document.getElementById("sort-dropdown-container").appendChild(label);
+    document.getElementById("sort-dropdown-container").appendChild(sortDropdown);
 }
+
 
 function createCandidateList() {
     document.getElementById("candidates-container").innerHTML = "";
+
+    const p = document.createElement("h3");
+    p.appendChild(document.createTextNode("Kandidatliste for Samsø kommune"));
+    document.getElementById("candidates-container").appendChild(p);
 
 
     for (let candidate of candidates) {
@@ -59,7 +68,11 @@ function createCandidateList() {
 
         //visible fields
         let span = document.createElement("span");
-        span.innerText = candidate.name + " " + candidate.politicalParty.name;
+        span.innerText = candidate.name + " ";
+
+        let span2 = document.createElement("span");
+        span2.innerText = candidate.politicalParty.name;
+        span2.style.color = "blue";
 
         let editButton = document.createElement("button");
         editButton.appendChild(document.createTextNode("Rediger"));
@@ -76,19 +89,22 @@ function createCandidateList() {
         let hideContainer = document.createElement("div");
         hideContainer.style.display = "none";
         hideContainer.setAttribute("id", "hide-" + candidate.id);
+        hideContainer.setAttribute("class", "hide-container");
 
         let nameInput = document.createElement("input");
         nameInput.setAttribute("type", "text");
         hideContainer.appendChild(nameInput);
         nameInput.setAttribute("id", "name-input-" + candidate.id);
+        nameInput.value = candidate.name;
 
         let voteInput = document.createElement("input");
         voteInput.setAttribute("type", "number");
         hideContainer.appendChild(voteInput);
         voteInput.setAttribute("id", "votes-input-" + candidate.id);
+        voteInput.value = candidate.numberOfVotes;
 
         let select = document.createElement("select");
-        createPartyDropdown(select);
+        createPartyDropdown(select, candidate);
         hideContainer.appendChild(select);
         select.setAttribute("id", "party-input-" + candidate.id);
 
@@ -104,10 +120,18 @@ function createCandidateList() {
         //append
         document.getElementById("candidates-container").appendChild(fieldsContainer);
         fieldsContainer.appendChild(span);
+        fieldsContainer.appendChild(span2);
         fieldsContainer.appendChild(editButton);
         fieldsContainer.appendChild(deleteButton);
         fieldsContainer.appendChild(hideContainer);
 
+    }
+}
+
+function hideAllEditFields() {
+    const hideContainers = document.querySelectorAll(".hide-container");
+    for (let hideContainer of hideContainers) {
+        hideContainer.style.display = "none";
     }
 }
 
@@ -147,10 +171,25 @@ function deleteCandidate(event) {
     fetch(url, deleteRequest).then(response => console.log(response.ok));
 
 
-    //todo: refresh
+
+    let indexToRemove = -1;
+
+    for (let i = 0; i < candidates.length; i++) {
+        if (candidates[i].id === parseInt(id)) {
+            indexToRemove = i;
+            break;
+        }
+    }
+
+    if (indexToRemove > -1) {
+        candidates.splice(indexToRemove, 1);
+        createCandidateList();
+        createCandidateMap();
+    }
 }
 
 function openEdit(event) {
+    hideAllEditFields();
     const id = event.target.id.substring(event.target.id.lastIndexOf("-") + 1);
     document.getElementById("hide-" + id).style.display = "block";
 }
@@ -161,14 +200,18 @@ function createPartyMap() {
     }
 }
 
-function createPartyDropdown(selectElement) {
+function createPartyDropdown(selectElement, candidate) {
     for (let party of parties) {
         let partyOption = document.createElement("option");
         partyOption.value = party.partyId;
         partyOption.text = party.name;
+        if (arguments.length > 1 && candidate.politicalParty.partyId === party.partyId) {
+            partyOption.setAttribute("selected", "selected");
+        }
         selectElement.appendChild(partyOption);
     }
 }
+
 
 function postCandidate() {
     const url = "http://localhost:8080/api/create-candidate";
@@ -190,7 +233,7 @@ function postCandidate() {
         body: JSON.stringify(candidate)
     }
 
-    fetch(url, postRequest).then(response => console.log("Success"));
+    fetch(url, postRequest).then(() => window.location.href = "/candidates.html");
 
 
 }
